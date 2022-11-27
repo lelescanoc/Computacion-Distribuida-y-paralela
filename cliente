@@ -1,0 +1,67 @@
+package main
+
+import (
+	"log"
+	"net"
+	"os"
+	"strconv"
+	"strings"
+)
+
+const (
+	message       = "PING"
+	StopCharacter = "\r\n\r\n"
+)
+
+//func trape(){
+//	exprtkObj := exprtk.NewExprtk()
+//	defer exprtkObj.Delete()
+//	n := 100
+//	exprtkObj.SetExpression("(b-a)/n")
+
+//	exprtkObj.AddDoubleVariable("b")
+//	exprtkObj.AddDoubleVariable("a")
+
+//	err := exprtkObj.CompileExpression()
+//	if err != nil {
+	//	fmt.Println(err.Error())
+//		return
+//	}
+
+//	exprtkObj.SetDoubleVariableValue("b", 5)
+//	exprtkObj.SetDoubleVariableValue("a", 2)
+
+//	fmt.Println(exprtkObj.GetEvaluatedValue())
+//}
+
+func SocketClient(ip string, port int) {
+	addr := strings.Join([]string{ip, strconv.Itoa(port)}, ":")
+	conn, err := net.Dial("tcp", addr)
+
+	if err != nil {
+		log.Fatalln(err)
+		os.Exit(1)
+	}
+
+	defer conn.Close()
+
+	conn.Write([]byte(message))
+	conn.Write([]byte(StopCharacter))
+	log.Printf("Send: %s", message)
+
+	buff := make([]byte, 1024)
+	n, _ := conn.Read(buff)
+	log.Printf("Receive: %s", buff[:n])
+
+}
+
+func main() {
+
+	var (
+		ip   = "127.0.0.1"
+		port = 3333
+	)
+
+	SocketClient(ip, port)
+
+}
